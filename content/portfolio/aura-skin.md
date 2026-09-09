@@ -2,7 +2,7 @@
 title: Arc Creative Media
 category: Branding
 tag: Branding
-image: /uploads/chatgpt-image-sep-9-2026-02_31_40-pm.png
+image: /uploads/6d2b1051-07be-4008-a2d5-baa0a929a4cb.png
 ---
 
 
