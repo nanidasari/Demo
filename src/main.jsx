@@ -131,6 +131,8 @@ function CustomCursor() {
   const raf = useRef(0);
   const target = useRef({ x: -100, y: -100 });
   const current = useRef({ x: -100, y: -100 });
+  const lastPointer = useRef({ x: -100, y: -100 });
+  const trail = useRef([]);
 
   useEffect(() => {
     const isFinePointer = window.matchMedia?.("(pointer:fine)").matches;
@@ -139,6 +141,8 @@ function CustomCursor() {
     const move = (e) => {
       target.current.x = e.clientX;
       target.current.y = e.clientY;
+      lastPointer.current.x = e.clientX;
+      lastPointer.current.y = e.clientY;
       const interactive = e.target.closest("a, button, .project, .portfolio-item, .service-card, .quote-card");
       const isImage = e.target.closest(".project, .portfolio-item");
       const isCard = e.target.closest(".service-card, .quote-card");
@@ -148,6 +152,12 @@ function CustomCursor() {
       if (label.current) label.current.textContent = isImage ? "VIEW" : isCard ? "EXPLORE" : interactive ? "OPEN" : "";
     };
 
+    const click = () => {
+      document.body.classList.remove("cursor-click");
+      void document.body.offsetWidth;
+      document.body.classList.add("cursor-click");
+      window.setTimeout(() => document.body.classList.remove("cursor-click"), 420);
+    };
     const leave = () => document.body.classList.remove("cursor-hover", "cursor-image", "cursor-card");
 
     const animate = () => {
@@ -161,10 +171,12 @@ function CustomCursor() {
     };
 
     window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("pointerdown", click, { passive: true });
     document.addEventListener("mouseleave", leave);
     raf.current = requestAnimationFrame(animate);
     return () => {
       window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerdown", click);
       document.removeEventListener("mouseleave", leave);
       cancelAnimationFrame(raf.current);
     };
