@@ -6,7 +6,8 @@
     "content/settings.yml",
     "content/portfolio/manifest.json",
     "content/services/manifest.json",
-    "content/testimonials/manifest.json"
+    "content/testimonials/manifest.json",
+    "content/team/manifest.json"
   ];
 
   async function getText(path) {
@@ -33,7 +34,7 @@
         }
       });
 
-      for (const folder of ["portfolio", "services", "testimonials"]) {
+      for (const folder of ["portfolio", "services", "testimonials", "team"]) {
         const names = Array.isArray(manifestMap[folder]) ? manifestMap[folder] : [];
         for (const name of names) {
           const path = `content/${folder}/${name}`;

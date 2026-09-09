@@ -7,6 +7,7 @@ import "./styles.css";
 
 const portfolioFiles = import.meta.glob("../content/portfolio/*.md", { eager: true, query: "?raw", import: "default" });
 const testimonialFiles = import.meta.glob("../content/testimonials/*.md", { eager: true, query: "?raw", import: "default" });
+const teamFiles = import.meta.glob("../content/team/*.md", { eager: true, query: "?raw", import: "default" });
 const serviceFiles = import.meta.glob("../content/services/*.md", { eager: true, query: "?raw", import: "default" });
 const pageFiles = import.meta.glob("../content/pages/*.yml", { eager: true, query: "?raw", import: "default" });
 const settingsFiles = import.meta.glob("../content/settings.yml", { eager: true, query: "?raw", import: "default" });
@@ -35,6 +36,13 @@ const testimonials = loadCollection(testimonialFiles).map(t => ({
   image: t.image || ""
 }));
 
+const team = loadCollection(teamFiles).filter(t => t.enabled !== false).map((t, i) => ({
+  name: t.name || `Team Member ${i + 1}`,
+  role: t.role || "Designer",
+  bio: t.bio || "",
+  image: t.image || ""
+}));
+
 const services = loadCollection(serviceFiles).filter(s => s.enabled !== false).map((s, i) => ({
   number: s.number || String(i + 1).padStart(2, "0"),
   title: s.title || "Service",
@@ -46,7 +54,7 @@ const home = yaml.load(pageFiles["../content/pages/home.yml"] || "") || {};
 const about = yaml.load(pageFiles["../content/pages/about.yml"] || "") || {};
 const settings = yaml.load(settingsFiles["../content/settings.yml"] || "") || {};
 
-const contentData = { portfolio, testimonials, services, home, about, settings };
+const contentData = { portfolio, testimonials, services, team, home, about, settings };
 function useContent(cms) {
   return cms || contentData;
 }
@@ -221,6 +229,61 @@ function useInteractiveTilt(selector) {
 }
 
 
+function ParticleField() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    let raf = 0;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const pointer = { x: -9999, y: -9999 };
+    let scrollY = window.scrollY;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const count = Math.min(90, Math.max(42, Math.floor(window.innerWidth / 15)));
+
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = "100%"; canvas.style.height = "100%";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      particles = Array.from({ length: count }, (_, i) => ({
+        x: (i * 137.5) % window.innerWidth, y: (i * 83.7) % window.innerHeight,
+        vx: (i % 3 - 1) * 0.18, vy: ((i % 5) - 2) * 0.12, r: 1 + (i % 3) * .55,
+        depth: .25 + (i % 7) / 10, phase: i * .7
+      }));
+    };
+    const move = e => { pointer.x = e.clientX; pointer.y = e.clientY; };
+    const scroll = () => { scrollY = window.scrollY; };
+    const draw = (t) => {
+      const w = window.innerWidth, h = window.innerHeight;
+      ctx.clearRect(0, 0, w, h);
+      particles.forEach((p, i) => {
+        const drift = reduce ? 0 : Math.sin(t * .00035 + p.phase) * .22;
+        const dx = pointer.x - p.x, dy = pointer.y - p.y, dist2 = dx*dx + dy*dy;
+        if (dist2 < 18000 && !reduce) {
+          const d = Math.sqrt(dist2) || 1, force = (1 - d / 135) * .55;
+          p.vx -= dx / d * force * .018; p.vy -= dy / d * force * .018;
+        }
+        p.vx = Math.max(-.55, Math.min(.55, p.vx)); p.vy = Math.max(-.55, Math.min(.55, p.vy));
+        p.x += p.vx + drift; p.y += p.vy - (reduce ? 0 : scrollY * .00002 * p.depth);
+        if (p.x < -20) p.x = w + 20; if (p.x > w + 20) p.x = -20;
+        if (p.y < -20) p.y = h + 20; if (p.y > h + 20) p.y = -20;
+        ctx.globalAlpha = .16 + p.depth * .22;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = i % 3 === 0 ? "#ff70d0" : i % 3 === 1 ? "#8e7cff" : "#63e6ff"; ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(draw);
+    };
+    resize(); window.addEventListener("resize", resize); window.addEventListener("pointermove", move, { passive:true }); window.addEventListener("scroll", scroll, { passive:true });
+    raf = requestAnimationFrame(draw);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); window.removeEventListener("pointermove", move); window.removeEventListener("scroll", scroll); };
+  }, []);
+  return <canvas ref={canvasRef} className="particle-field" aria-hidden="true" />;
+}
+
 function FloatingDesignElements() {
   const items = [
     { icon: PenTool, label: "PEN", x: "8%", y: "18%", delay: "0s", duration: "13s", size: 30 },
@@ -305,6 +368,7 @@ function Home({ cms } = {}) {
   useInteractiveTilt(".service-card, .quote-card");
   return (
     <main ref={glow}>
+      <ParticleField />
       <FloatingDesignElements />
       <section className="hero">
         <div className="aurora a1"/><div className="aurora a2"/><div className="aurora a3"/>
@@ -372,10 +436,11 @@ function Work({ cms } = {}) {
 }
 
 function About({ cms } = {}) {
-  const { about: pageAbout, settings: siteSettings } = useContent(cms);
+  const { about: pageAbout, settings: siteSettings, team: siteTeam } = useContent(cms);
   return <main className="inner-page"><section className="page-hero"><span className="kicker">{pageAbout.eyebrow || "ABOUT PIXCEL"}</span><h1>{pageAbout.title || "Built for brands with something to say."}</h1><p>{pageAbout.intro || "Pixcel Studio is an independent graphic design practice focused on creating clear, expressive visual identities with a little more character."}</p></section>
     <section className="section about-layout"><div className="about-art"><div className="about-photo">{pageAbout.founder_photo ? <img src={pageAbout.founder_photo} alt={pageAbout.founder_name || "Pixcel Studio founder"} /> : <span>PX</span>}</div></div><div className="about-copy"><span className="kicker">THE STUDIO</span><h2>{pageAbout.studio_heading || "Strategy in one hand. Play in the other."}</h2><p>{pageAbout.paragraph_1 || "We believe the strongest visual identities sit at the intersection of clarity and surprise."}</p><p>{pageAbout.paragraph_2 || "Our work spans identity, packaging and social content for founders and teams."}</p><a className="text-link" href={`mailto:${siteSettings.email || "hello@pixcelstudio.com"}`}>Start a conversation <ArrowRight size={17}/></a></div></section>
     <section className="founder"><div><span className="kicker">THE FOUNDER</span><h2>{pageAbout.founder_name || "Israyelu Kodem."}</h2><p>{pageAbout.founder_bio || "Creative direction, brand systems and a belief that design should feel as good as it looks."}</p></div><div className="founder-card glass"><div className="portrait">{pageAbout.founder_photo ? <img src={pageAbout.founder_photo} alt={pageAbout.founder_name || "Founder"} /> : "IK"}</div><div><strong>{pageAbout.founder_name || "Israyelu Kodem"}</strong><small>{pageAbout.founder_role || "Founder & Creative Director"}</small></div></div></section>
+    <section className="section team-section"><div className="section-head"><div><span className="kicker">THE TEAM</span><h2>People behind<br/><i>the pixels.</i></h2></div><p>Keep your studio roster fresh from Decap CMS — add, edit or remove team members without changing the site code.</p></div><div className="team-grid">{siteTeam.map((member, i)=><article className="team-card glass" key={`${member.name}-${i}`}>{member.image ? <img src={member.image} alt={member.name}/> : <div className="team-placeholder">PX</div>}<div className="team-meta"><strong>{member.name}</strong><small>{member.role}</small>{member.bio && <p>{member.bio}</p>}</div></article>)}</div></section>
   </main>;
 }
 

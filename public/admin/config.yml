@@ -46,6 +46,18 @@ collections:
       - { label: "Icon", name: "icon", widget: "select", options: ["branding", "packaging", "social", "art-direction", "campaign", "presentation"] }
       - { label: "Enabled", name: "enabled", widget: "boolean", default: true }
 
+  - name: "team"
+    label: "Team"
+    folder: "content/team"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Role", name: "role", widget: "string" }
+      - { label: "Bio", name: "bio", widget: "text", required: false }
+      - { label: "Photo", name: "image", widget: "image", required: false }
+      - { label: "Enabled", name: "enabled", widget: "boolean", default: true }
+
   - name: "pages"
     label: "Pages"
     files:
