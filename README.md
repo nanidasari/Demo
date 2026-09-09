@@ -1,36 +1,30 @@
-# Pixcel Studio — Netlify + Decap CMS
+# Pixcel Studio — Fully CMS-Driven
 
-This version is **Netlify-only**. It uses Decap CMS with Netlify Identity + Git Gateway, so there is no Vercel configuration or Vercel OAuth function.
+All major client-visible content is connected to Decap CMS content:
+Home, About, Founder photo, Services, Portfolio, Testimonials, global settings and social links.
 
-## Netlify deployment
-- Build command: `npm run build`
-- Publish directory: `dist`
-- Node: use a current LTS Node version
+Workflow:
+Decap CMS → GitHub commit → Netlify build → public website.
 
-## Enable Decap CMS
-In the Netlify site dashboard:
-1. Open **Identity** and enable Netlify Identity.
-2. Under Identity settings, enable **Git Gateway**.
-3. Invite your GitHub account as an Identity user, or enable the registration method you prefer.
-4. Deploy the site.
-5. Open `/admin/` on the Netlify site and sign in.
+Deploy from the GitHub repository (do not use a one-time drag-and-drop build) so every Publish creates a new production build.
 
-The CMS writes content changes to the `main` branch of:
-`nanidasari/PIXCELSTUDIOSVERCEL`
+Netlify:
+- Build command: npm run build
+- Publish directory: dist
 
-If your Netlify site uses a different GitHub repository, change the `repo:` value in `public/admin/config.yml`.
+CMS:
+- Open /admin/
+- Edit
+- Save
+- Publish
+- Wait for Netlify deploy to finish
+- Hard refresh the public site once if your browser cached the old HTML
 
-## CMS media
-Uploads are stored in:
-- `public/uploads`
+The runtime also fetches `/content/*` with no-cache headers, so CMS content is not baked only into React constants.
 
-## Routes
-- `/` — Home
-- `/work` — Portfolio
-- `/about` — About
-- `/admin/` — Decap CMS
 
-The Netlify redirects keep React routes refresh-safe while preserving the CMS admin page.
+## Important: Decap CMS updates
 
-## Background design
-The home page includes subtle floating graphic-design elements — grid circles, geometric forms, type markers, rings and gradient bars — layered over the existing ambient glow. They are pointer-safe, lightweight CSS shapes and respect reduced-motion preferences.
+This is a static Vite site. Decap CMS saves changes to the Git repository, and Netlify must rebuild the site before the public client page changes. The frontend reads Services, Portfolio and Testimonials directly from the `content/` files at build time, so newly created CMS entries are included automatically on the next Netlify build.
+
+Do not use a one-time drag-and-drop deploy if you want CMS changes to update automatically. Connect the site to the Git repository and enable Netlify continuous deployment. After publishing in `/admin/`, wait for the Netlify deploy to finish, then hard-refresh the client page.

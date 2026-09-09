@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import yaml from "js-yaml";
 
-import { ArrowUpRight, ArrowRight, Menu, X, Sparkles, Box, Share2, Palette, Quote, MoveUpRight } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Menu, X, Sparkles, Box, Share2, Palette, Quote, MoveUpRight, PenTool, Type, Crop, Layers3, MousePointer2, Ruler, Shapes, Grid3X3, Wand2 } from "lucide-react";
 import "./styles.css";
 
 const portfolioFiles = import.meta.glob("../content/portfolio/*.md", { eager: true, query: "?raw", import: "default" });
@@ -208,6 +208,42 @@ function useInteractiveTilt(selector) {
   }, [selector]);
 }
 
+
+function FloatingDesignElements() {
+  const items = [
+    { icon: PenTool, label: "PEN", x: "8%", y: "18%", delay: "0s", duration: "13s", size: 30 },
+    { icon: Type, label: "TYPE", x: "88%", y: "22%", delay: "-4s", duration: "16s", size: 28 },
+    { icon: Crop, label: "CROP", x: "18%", y: "72%", delay: "-7s", duration: "15s", size: 26 },
+    { icon: Layers3, label: "LAYERS", x: "82%", y: "66%", delay: "-2s", duration: "18s", size: 30 },
+    { icon: MousePointer2, label: "CURSOR", x: "52%", y: "16%", delay: "-9s", duration: "14s", size: 24 },
+    { icon: Ruler, label: "GRID", x: "91%", y: "82%", delay: "-6s", duration: "17s", size: 25 },
+    { icon: Shapes, label: "SHAPES", x: "5%", y: "48%", delay: "-11s", duration: "19s", size: 27 },
+    { icon: Grid3X3, label: "SYSTEM", x: "69%", y: "88%", delay: "-3s", duration: "15s", size: 25 },
+    { icon: Wand2, label: "MAGIC", x: "35%", y: "91%", delay: "-8s", duration: "20s", size: 26 }
+  ];
+  return (
+    <div className="floating-design-layer" aria-hidden="true">
+      <div className="floating-grid" />
+      {items.map(({ icon: Icon, label, x, y, delay, duration, size }) => (
+        <div
+          className="floating-design-tool"
+          key={label}
+          style={{ left: x, top: y, "--float-delay": delay, "--float-duration": duration }}
+        >
+          <div className="tool-orb">
+            <Icon size={size} strokeWidth={1.4} />
+          </div>
+          <span>{label}</span>
+        </div>
+      ))}
+      <span className="floating-plus plus-1">+</span>
+      <span className="floating-plus plus-2">+</span>
+      <span className="floating-cross cross-1">×</span>
+      <span className="floating-diamond">◇</span>
+    </div>
+  );
+}
+
 function Header({ cms } = {}) {
   const { settings: siteSettings } = useContent(cms);
   const [open, setOpen] = useState(false);
@@ -256,11 +292,8 @@ function Home({ cms } = {}) {
   const glow = useMouseGlow();
   useInteractiveTilt(".service-card, .quote-card");
   return (
-    <main ref={glow}><div className="ambient-background" aria-hidden="true"><span className="ambient-orb orb-one"/><span className="ambient-orb orb-two"/><span className="ambient-orb orb-three"/><span className="ambient-grid"/>
-      <div className="design-float design-float-1"><span className="df-circle"/><span className="df-line"/><b>GRID</b></div>
-      <div className="design-float design-float-2"><span className="df-square"/><span className="df-cross"/><b>TYPE</b></div>
-      <div className="design-float design-float-3"><span className="df-triangle"/><span className="df-dot"/><b>FORM</b></div>
-      <div className="design-float design-float-4"><span className="df-ring"/><span className="df-bar"/><b>PIX</b></div></div>
+    <main ref={glow}>
+      <FloatingDesignElements />
       <section className="hero">
         <div className="aurora a1"/><div className="aurora a2"/><div className="aurora a3"/>
         <div className="hero-copy">

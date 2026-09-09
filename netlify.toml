@@ -2,13 +2,7 @@
   command = "npm run build"
   publish = "dist"
 
-# React SPA routes + Decap CMS admin route
-[[redirects]]
-  from = "/admin/*"
-  to = "/admin/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[[headers]]
+  for = "/content/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
