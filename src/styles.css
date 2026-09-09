@@ -59,3 +59,26 @@ html{scroll-behavior:smooth}body{margin:0;overflow-x:hidden;background:radial-gr
 @media(prefers-reduced-motion:reduce){
   .floating-design-tool,.floating-design-tool .tool-orb:before,.floating-plus,.floating-cross,.floating-diamond{animation:none!important}
 }
+
+
+/* Scroll + mouse parallax for floating design tools */
+.floating-design-layer{--scroll-shift:0px;--mouse-shift:0px;will-change:transform;}
+.floating-design-tool{will-change:transform;}
+.floating-design-tool:nth-of-type(2n){--parallax-depth:.55;}
+.floating-design-tool:nth-of-type(3n){--parallax-depth:.85;}
+.floating-design-tool:nth-of-type(4n){--parallax-depth:1.15;}
+.floating-design-tool:nth-of-type(5n){--parallax-depth:.7;}
+.floating-design-tool{--parallax-depth:.45;}
+.floating-design-tool{animation-name:designFloatParallax;}
+@keyframes designFloatParallax{
+  0%,100%{transform:translate(calc(-50% + var(--mouse-shift) * var(--parallax-depth)),calc(-50% + var(--scroll-shift) * var(--parallax-depth) - 4px)) rotate(-4deg)}
+  25%{transform:translate(calc(-50% + var(--mouse-shift) * var(--parallax-depth) + 13px),calc(-50% + var(--scroll-shift) * var(--parallax-depth) - 20px)) rotate(4deg)}
+  55%{transform:translate(calc(-50% + var(--mouse-shift) * var(--parallax-depth) - 10px),calc(-50% + var(--scroll-shift) * var(--parallax-depth) + 17px)) rotate(-2deg)}
+  80%{transform:translate(calc(-50% + var(--mouse-shift) * var(--parallax-depth) + 18px),calc(-50% + var(--scroll-shift) * var(--parallax-depth) + 5px)) rotate(6deg)}
+}
+.floating-plus,.floating-cross,.floating-diamond{will-change:transform;}
+.plus-1{transform:translate3d(calc(var(--mouse-shift) * .35),calc(var(--scroll-shift) * .55),0);}
+.plus-2{transform:translate3d(calc(var(--mouse-shift) * -.45),calc(var(--scroll-shift) * .8),0);}
+.cross-1{transform:translate3d(calc(var(--mouse-shift) * .65),calc(var(--scroll-shift) * 1.05),0);}
+.floating-diamond{transform:translate3d(calc(var(--mouse-shift) * -.8),calc(var(--scroll-shift) * .7),0);}
+@media(prefers-reduced-motion:reduce){.floating-design-layer{--scroll-shift:0px!important;--mouse-shift:0px!important}.floating-design-tool{animation-name:designFloat!important}}

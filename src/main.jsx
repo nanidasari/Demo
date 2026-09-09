@@ -285,6 +285,33 @@ function ParticleField() {
 }
 
 function FloatingDesignElements() {
+  const layerRef = useRef(null);
+  useEffect(() => {
+    const layer = layerRef.current;
+    if (!layer) return;
+    let raf = 0;
+    let scrollY = window.scrollY;
+    let pointerX = window.innerWidth / 2;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const update = () => {
+      raf = 0;
+      if (reduce) return;
+      layer.style.setProperty("--scroll-shift", `${scrollY * -0.22}px`);
+      layer.style.setProperty("--mouse-shift", `${(pointerX / Math.max(window.innerWidth, 1) - .5) * 28}px`);
+    };
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onScroll = () => { scrollY = window.scrollY; schedule(); };
+    const onPointer = (e) => { pointerX = e.clientX; schedule(); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("pointermove", onPointer, { passive: true });
+    schedule();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pointermove", onPointer);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   const items = [
     { icon: PenTool, label: "PEN", x: "8%", y: "18%", delay: "0s", duration: "13s", size: 30 },
     { icon: Type, label: "TYPE", x: "88%", y: "22%", delay: "-4s", duration: "16s", size: 28 },
@@ -297,7 +324,7 @@ function FloatingDesignElements() {
     { icon: Wand2, label: "MAGIC", x: "35%", y: "91%", delay: "-8s", duration: "20s", size: 26 }
   ];
   return (
-    <div className="floating-design-layer" aria-hidden="true">
+    <div ref={layerRef} className="floating-design-layer" aria-hidden="true">
       <div className="floating-grid" />
       {items.map(({ icon: Icon, label, x, y, delay, duration, size }) => (
         <div
