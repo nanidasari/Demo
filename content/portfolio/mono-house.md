@@ -1,7 +1,7 @@
 ---
-title: "Mono House"
-category: "Branding"
-tag: "Identity"
-image: "/images/project-4.svg"
+title: College Poster
+category: Social Media
+tag: Creatives
+image: /uploads/static-4-—-pg-courses.png
 ---
 A sample art direction project.
