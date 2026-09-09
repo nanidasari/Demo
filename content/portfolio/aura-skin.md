@@ -2,7 +2,7 @@
 title: Arc Creative Media
 category: Branding
 tag: Branding
-image: /uploads/d7b6129e-2531-4bcd-8481-44b3cf16f97d.png
+image: /uploads/a10c8a2e-4c91-4756-ad65-b3565788f563.png
 ---
 
 
